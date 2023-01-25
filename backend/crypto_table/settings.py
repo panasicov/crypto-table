@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     'cryptorank',
     'arbitrage_pairs',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,7 @@ WSGI_APPLICATION = 'crypto_table.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'v2crypto_table',
+        'NAME': 'crypto_table',
         'USER': 'admin',
         'PASSWORD': 'admin',
         'HOST': '127.0.0.1',
@@ -186,8 +187,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
-       'https://localhost:3000',
-       'https://localhost:8000',
+    'http://localhost:3000',
+    'http://localhost:8000',
 )
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
