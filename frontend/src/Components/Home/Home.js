@@ -3,7 +3,7 @@ import Header from './../Header/Header'
 
 const Home = () =>{
 
-  return (    
+  return (
     <div className='home_block'>
       <Header />
     </div>

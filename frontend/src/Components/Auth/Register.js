@@ -23,7 +23,7 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const [usernameError, setUsernameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -90,7 +90,7 @@ const Register = () => {
                   <input type={showPass ? "text" : "password"} class="form-control" placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
                   <div class="input-group-append" onClick={() => setShowPass(!showPass)}>
                   <span class="input-group-text">
-                    <i class={showPass ? "fas fa-eye" : "fas fa-eye-slash"}></i>
+                    <i role="button" class={showPass ? "fas fa-eye" : "fas fa-eye-slash"}></i>
                   </span>
                   </div>
                 </div>

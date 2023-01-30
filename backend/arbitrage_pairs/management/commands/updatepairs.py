@@ -1,7 +1,6 @@
 import logging
 import threading
 from queue import Queue
-import time
 from urllib.parse import urlsplit, urlunsplit
 
 
@@ -21,6 +20,13 @@ class Command(BaseCommand):
     Cryptorank = PyCryptorank()
 
     def non_zero_round(self, num, places):
+        """
+            The function allows you to round decimal numbers
+            without including zeros after comma
+            Example:
+            `>>> non_zero_round(12.000096342294, 3)`
+            `12.0000963`
+        """
         last_usd = num
         last_usd = format(last_usd, '.20f').split('.')
         last_usd1 = last_usd[0]
@@ -30,7 +36,7 @@ class Command(BaseCommand):
             if last_usd2[j] != '0':
                 last_usd2 = last_usd2[:j+places]
                 break
-        
+
         return last_usd1 + '.' + last_usd2
 
     def worker(self):
@@ -42,6 +48,7 @@ class Command(BaseCommand):
     def handle_coin(self, base_coin):
         coin_tickers = self.Cryptorank.get_coin_tickers(coin_id=base_coin.key)
         TradingPair.objects.filter(base_coin=base_coin).delete()
+        # Filtering coin tickers with wrong price
         coin_tickers['data'] = [
             tk for tk in coin_tickers['data']
             if tk.get('baseVolume', None)
@@ -59,9 +66,11 @@ class Command(BaseCommand):
             if not (base_ticker['usdLast'] and base_ticker['last']):
                 continue
 
-            base_ticker['my_bid'] = base_ticker['usdLast'] / base_ticker['last'] * base_ticker['bid']
-            base_ticker['my_ask'] = base_ticker['usdLast'] / base_ticker['last'] * base_ticker['ask']
+            # bid/ask can be specified in btc, eth, etc., so need to convert them to usd
+            base_ticker['usdBid'] = base_ticker['usdLast'] / base_ticker['last'] * base_ticker['bid']
+            base_ticker['usdAsk'] = base_ticker['usdLast'] / base_ticker['last'] * base_ticker['ask']
 
+            # Removing referal url params (like ?ref=123456)
             scheme, netloc, path, query, fragment = urlsplit(base_ticker['url'])
             base_ticker['url'] = urlunsplit((scheme, netloc, path, '', ''))
 
@@ -69,8 +78,8 @@ class Command(BaseCommand):
                 base_coin=base_coin,
                 target_coin_symbol=target_coin_symbol,
                 price=self.non_zero_round(base_ticker['usdLast'], 3),
-                bid=self.non_zero_round(base_ticker['my_bid'], 3),
-                ask=self.non_zero_round(base_ticker['my_ask'], 3),
+                bid=self.non_zero_round(base_ticker['usdBid'], 3),
+                ask=self.non_zero_round(base_ticker['usdAsk'], 3),
                 volume=self.non_zero_round(base_ticker['usdVolume'], 3),
                 trade_url=base_ticker['url'],
                 exchange=Exchange.objects.get_or_create(
@@ -90,8 +99,8 @@ class Command(BaseCommand):
                     if not (target_ticker['usdLast'] and target_ticker['last']):
                         continue
 
-                    target_ticker['my_bid'] = target_ticker['usdLast'] / target_ticker['last'] * target_ticker['bid']
-                    target_ticker['my_ask'] = target_ticker['usdLast'] / target_ticker['last'] * target_ticker['ask']
+                    target_ticker['usdBid'] = target_ticker['usdLast'] / target_ticker['last'] * target_ticker['bid']
+                    target_ticker['usdAsk'] = target_ticker['usdLast'] / target_ticker['last'] * target_ticker['ask']
 
                     scheme, netloc, path, query, fragment = urlsplit(base_ticker['url'])
                     base_ticker['url'] = urlunsplit((scheme, netloc, path, '', ''))
@@ -100,8 +109,8 @@ class Command(BaseCommand):
                         base_coin=base_coin,
                         target_coin_symbol=target_coin_symbol,
                         price=self.non_zero_round(target_ticker['usdLast'], 3),
-                        bid=self.non_zero_round(target_ticker['my_bid'], 3),
-                        ask=self.non_zero_round(target_ticker['my_ask'], 3),
+                        bid=self.non_zero_round(target_ticker['usdBid'], 3),
+                        ask=self.non_zero_round(target_ticker['usdAsk'], 3),
                         volume=self.non_zero_round(target_ticker['usdVolume'], 3),
                         trade_url=target_ticker['url'],
                         exchange=Exchange.objects.get_or_create(
@@ -111,8 +120,8 @@ class Command(BaseCommand):
                             }
                         )[0]
                     )
-                    if base_ticker['my_ask'] and target_ticker['my_bid']:
-                        spread = target_ticker['my_bid'] / base_ticker['my_ask'] * 100 - 100
+                    if base_ticker['usdAsk'] and target_ticker['usdBid']:
+                        spread = target_ticker['usdBid'] / base_ticker['usdAsk'] * 100 - 100
                     else:
                         spread = target_ticker['usdLast'] / base_ticker['usdLast'] * 100 - 100
 
@@ -133,10 +142,12 @@ class Command(BaseCommand):
             t.daemon = True
             t.start()
 
-        while True:
-            coins = Coin.objects.all()[500::]
+        # First 500 coins have a minimal chance of arbitrage, and due to
+        # the large number of exchanges, they are processed by the
+        # database for a long time, so exclude them
+        coins = Coin.objects.all()[500::]
 
-            for base_coin in tqdm(coins):
-                q.put((self.handle_coin, base_coin))
+        for base_coin in tqdm(coins):
+            q.put((self.handle_coin, base_coin))
 
-            q.join()
+        q.join()

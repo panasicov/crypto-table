@@ -25,13 +25,13 @@ const Navbar = (navClass, linkClassName) => {
         });
       }
     })
-  }, []);
+  }, [])
 
   const NavComponent = ({navClass, linkClassName}) => (
     <nav className={navClass}>
       {Object.entries(navButtons).map( ([key, value]) =>
         <Link to={value} className={linkClassName}>
-        {key}
+          {key}
         </Link>
       )}
     </nav>

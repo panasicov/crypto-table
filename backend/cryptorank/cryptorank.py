@@ -34,7 +34,7 @@ class PyCryptorank:
                 pass
 
             raise
-    
+
     def ordonate_params(self, params: dict) -> str:
         ordonated_params = ''
         if params:

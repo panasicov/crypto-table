@@ -10,7 +10,7 @@ class CoinSerializer(serializers.ModelSerializer):
 
 
 class ExchangeSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Exchange
         fields = '__all__'

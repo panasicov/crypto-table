@@ -10,7 +10,6 @@ import Login from './Components/Auth/Login';
 import Register from './Components/Auth/Register';
 import Home from './Components/Home/Home'
 import Logout from './Components/Auth/Logout';
-import APIService from './APIService';
 import AuthService from './Components/Auth/AuthService';
 
 class App extends Component {

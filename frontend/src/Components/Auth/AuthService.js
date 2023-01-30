@@ -63,32 +63,31 @@ class AuthService{
       })
   }
 
-  isLogged = () => {
+  isLogged = (withoutRefresh=false) => {
     return this.isAccessTokenValid()
     .then(response => {
       if (response) {
-        // this.refreshAccessToken()
-        // .catch(error => {
-        //   alert('3 ' + JSON.stringify(error.response));
-          return true;
-      } else {
-          return false;
-        }
-    });
+        return true
+      }
+      if (withoutRefresh) {
+        return false
+      }
+      this.refreshAccessToken();
+      return this.isLogged(withoutRefresh=true);
+      })
   }
 
   setTokenInHeaders = () => {
     const token = localStorage.getItem('access');
     if (!token) {
-      apiService.deleteDefaultHeaders();
+      this.deleteTokenFromHeaders();
+    } else {
+      apiService.setDefaultHeaders('Authorization', `Bearer ${token}`);
     }
-    apiService.setDefaultHeaders('Authorization', `Bearer ${token}`);
-    // axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 
   deleteTokenFromHeaders = () => {
     apiService.deleteDefaultHeaders('Authorization');
-    // delete axios.defaults.headers.common["Authorization"];
   }
 }
 

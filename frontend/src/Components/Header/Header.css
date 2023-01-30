@@ -10,24 +10,24 @@ header {
     box-shadow: 1px 1px 1px 1px rgba(116, 110, 110, 0.199);
     z-index: 9999;
   }
-  
+
   .header-inner {
     width: 90%;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  
+
   .logo {
     font-size: 1.3rem;
     cursor: pointer;
     color: #ece9ea;
   }
-  
+
   .logo:hover {
     color: whitesmoke;
   }
-  
+
   .home_block {
     background: linear-gradient(
       rgba(0, 0, 0, 0.45),
@@ -42,47 +42,47 @@ header {
     background-position: center;
     background-repeat: no-repeat;
   }
-  
+
   section, footer {
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 3rem;
   }
-  
+
   section {
     height: 100vh;
     color: rosybrown;
   }
-  
+
   nav {
     flex: 0.5;
     display: flex;
     justify-content: space-between;
   }
-  
+
   #Home {
     background-color: #CFD6D1;
   }
-  
+
   #About {
     background-color: #F9E6D2;
   }
-  
+
   #Projects {
     background-color: #e0e7ca;
   }
-  
+
   #Contact {
     background-color: #D7ECF6;
   }
-  
+
   footer {
     height: 200px;
     background: #505152;
     color: white;
   }
-  
+
   .hamburger-btn {
     font-size: 1.3rem;
     position: absolute;
@@ -94,17 +94,17 @@ header {
     background-color: rgb(134, 125, 125);
     color: whitesmoke;
   }
-  
+
   .addTransiton {
     transform: translateX(170px);
     transition: transform 0.5s ease-in-out;
   }
-  
+
   .removeTransition {
     transform: translateX(20px);
     transition: transform 0.5s ease-in-out;
   }
-  
+
   #sidebar-list {
     background-color: rgb(134, 125, 125);
     height: calc(100vh - 70px);
@@ -115,21 +115,22 @@ header {
     top: 0;
     margin-top: 70px;
   }
-  
+
   .nav-big {
     list-style: none;
     display: flex;
     justify-content: space-around;
     width: 70%;
     font-weight: bold;
+    text-decoration: none !important;
   }
-  
+
   .nav-big-link {
    cursor: pointer;
    color: white;
    text-decoration: none !important;
   }
-  
+
   .nav-small {
     display: flex;
     flex-direction: column;
@@ -140,10 +141,9 @@ header {
     margin-top: 50px;
     width: 80%;
   }
-  
+
   .nav-small-link {
     cursor: pointer;
     color: whitesmoke;
     padding-bottom: 5px;
   }
-  

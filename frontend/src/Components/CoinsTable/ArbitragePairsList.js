@@ -2,7 +2,7 @@ import  React, { Component } from  'react';
 import ArbitragePairsService from './ArbitragePairService';
 import HintInput from './HintInput';
 import Blacklisted from './Modal';
-import Header from './../Header/Header'
+import Header from './../Header/Header';
 import { Navigate } from 'react-router-dom';
 
 const  arbitragePairsService = new  ArbitragePairsService();
@@ -57,7 +57,7 @@ class  ArbitragePairsList  extends  Component {
     this.inputTimeout = this.inputTimeout.bind(this);
   }
 
-  componentDidMount = async () => {
+  componentDidMount = () => {
     var self = this;
     var last_api_url = localStorage.getItem('last_api_url');
     var response;
@@ -74,13 +74,13 @@ class  ArbitragePairsList  extends  Component {
         nextPageURL: result.data.next
       });
     }).catch((error) => {
-      if (error.response.status == 401) {
+      if (error.response.status === 401) {
         self.setState({
           redirectTo: '/login'
         })
       }
       else {
-        alert('Unknown error');
+        alert(`Unknown error. ${JSON.stringify(error)}`);
       }
     })
   }
@@ -90,7 +90,7 @@ class  ArbitragePairsList  extends  Component {
 
     arbitragePairsService.getArbitragePairsByURL(self.state.nextPageURL).then((result) => {
       self.setState({
-        pairs: self.state.pairs.concat(result.results),
+        pairs: self.state.pairs.concat(result.data.results),
         nextPageURL: result.next
       });
     });
@@ -118,7 +118,7 @@ class  ArbitragePairsList  extends  Component {
       typingTimeout: setTimeout(() => {
         arbitragePairsService.getArbitragePairsByURL(this.createUrl()).then((result) => {
           self.setState({
-            pairs: result.results,
+            pairs: result.data.results,
             nextPageURL: result.next
           });
         });
@@ -127,6 +127,8 @@ class  ArbitragePairsList  extends  Component {
   }
 
   sortHandler = (sort_by) => {
+    var self = this;
+
     this.paramState['sort_by'] = sort_by;
     var sort_dir = this.state.sortDirState[sort_by];
     var sort_dir_dict = this.state.sortDirState;
@@ -149,12 +151,12 @@ class  ArbitragePairsList  extends  Component {
       sort_dir = '↕';
     }
     arbitragePairsService.getArbitragePairsByURL(this.createUrl()).then((result) => {
-      this.setState({
-        pairs: result.results,
+      self.setState({
+        pairs: result.data.results,
         nextPageURL: result.next
       });
       sort_dir_dict[sort_by] = sort_dir;
-      this.setState({
+      self.setState({
         tableHeaderState: sort_dir_dict
       });
     });

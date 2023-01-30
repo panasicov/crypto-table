@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthService from './AuthService';
 import Header from './../Header/Header'
@@ -75,7 +75,7 @@ const Login = () => {
                   <input type={showPass ? "text" : "password"} class="form-control" placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
                   <div class="input-group-append" onClick={() => setShowPass(!showPass)}>
                   <span class="input-group-text">
-                    <i class={showPass ? "fas fa-eye" : "fas fa-eye-slash"}></i>
+                    <i role="button" class={showPass ? "fas fa-eye" : "fas fa-eye-slash"}></i>
                   </span>
                   </div>
                 </div>

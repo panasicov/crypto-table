@@ -16,6 +16,7 @@ class FiftyResultsSetPagination(PageNumberPagination):
             return None
         url = super().get_next_link()
         page_number = self.page.next_page_number()
+        # removing scheme and domain from url (like https://domain.com)
         scheme, netloc, path, query, fragment = urlsplit(url)
         query = query.replace(f'page={self.page.number}', f'page={page_number}')
         url = urlunsplit(("", "", path, query, fragment))
@@ -56,7 +57,7 @@ class ArbitragePairList(generics.ListAPIView):
             param = self.request.query_params.get(i, None)
             if param:
                 arbitrage_pairs = arbitrage_pairs.filter(**{search_to_orm[i]: (param)})
-        
+
         exclude_to_orm = {
             'dex1': {'base_trading_pair__exchange__group': 'dex'},
             'cex1': {'base_trading_pair__exchange__group': 'main'},

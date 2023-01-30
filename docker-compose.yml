@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  frontend:
+    restart: always
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npm start"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    volumes:
+      - .:/app/backend
+    restart: always
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py collectstatic --no-input --clear &&
+        gunicorn --workers=5 --bind=0.0.0.0:8000 crypto_table.wsgi:application"
+    env_file:
+      - backend/.env
+    depends_on:
+      - postgres
+
+  pairs_parser:
+    build: ./backend
+    volumes:
+      - .:/app/backend
+    restart: always
+    command: >
+      sh -c "
+        python manage.py updatecoins &&
+        python manage.py updateexchanges &&
+        python manage.py updatepairs"
+    env_file:
+      - backend/.env
+    depends_on:
+      backend:
+        condition: service_started
+
+  postgres:
+    image: postgres:12
+    restart: always
+    ports:
+        - 5433:5432
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
