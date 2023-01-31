@@ -143,6 +143,7 @@ header {
   }
 
   .nav-small-link {
+    display: block;
     cursor: pointer;
     color: whitesmoke;
     padding-bottom: 5px;

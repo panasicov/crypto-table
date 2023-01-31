@@ -4,8 +4,10 @@ import HintInput from './HintInput';
 import Blacklisted from './Modal';
 import Header from './../Header/Header';
 import { Navigate } from 'react-router-dom';
+import AuthService from '../Auth/AuthService';
 
-const  arbitragePairsService = new  ArbitragePairsService();
+const authService = new AuthService();
+const arbitragePairsService = new  ArbitragePairsService();
 
 class  ArbitragePairsList  extends  Component {
 
@@ -60,27 +62,29 @@ class  ArbitragePairsList  extends  Component {
   componentDidMount = () => {
     var self = this;
     var last_api_url = localStorage.getItem('last_api_url');
-    var response;
 
-    if (last_api_url) {
-      response = arbitragePairsService.getArbitragePairsByURL(last_api_url);
-    }
-    else {
-      response = arbitragePairsService.getArbitragePairs();
-    }
-    response.then((result) => {
-      self.setState({
-        pairs: result.data.results,
-        nextPageURL: result.data.next
-      });
-    }).catch((error) => {
-      if (error.response.status === 401) {
+    authService.isLogged()
+    .then((resp) => {
+      if(!resp) {
         self.setState({
           redirectTo: '/login'
         })
-      }
-      else {
-        alert(`Unknown error. ${JSON.stringify(error)}`);
+      } else {
+        var response;
+        if (last_api_url) {
+          response = arbitragePairsService.getArbitragePairsByURL(last_api_url);
+        }
+        else {
+          response = arbitragePairsService.getArbitragePairs();
+        }
+        response.then((result) => {
+          self.setState({
+            pairs: result.data.results,
+            nextPageURL: result.data.next
+          });
+        }).catch((error) => {
+            alert(`Unknown error. ${JSON.stringify(error)}`);
+        })
       }
     })
   }
@@ -88,12 +92,21 @@ class  ArbitragePairsList  extends  Component {
   nextPage = () => {
     var self = this;
 
-    arbitragePairsService.getArbitragePairsByURL(self.state.nextPageURL).then((result) => {
-      self.setState({
-        pairs: self.state.pairs.concat(result.data.results),
-        nextPageURL: result.next
-      });
-    });
+    authService.isLogged()
+    .then((resp) => {
+      if(!resp) {
+        self.setState({
+          redirectTo: '/login'
+        })
+      } else {
+        arbitragePairsService.getArbitragePairsByURL(self.state.nextPageURL).then((result) => {
+          self.setState({
+            pairs: self.state.pairs.concat(result.data.results),
+            nextPageURL: result.next
+          });
+        });
+      }
+    })
   }
 
   inputTimeout = (event, param) => {
@@ -113,16 +126,25 @@ class  ArbitragePairsList  extends  Component {
     else {
       this.paramState[param] = event.target.value;
     }
-    self.setState({
-      typing: false,
-      typingTimeout: setTimeout(() => {
-        arbitragePairsService.getArbitragePairsByURL(this.createUrl()).then((result) => {
-          self.setState({
-            pairs: result.data.results,
-            nextPageURL: result.next
-          });
+    authService.isLogged()
+    .then((resp) => {
+      if(!resp) {
+        self.setState({
+          redirectTo: '/login'
+        })
+      } else {
+        self.setState({
+          typing: false,
+          typingTimeout: setTimeout(() => {
+            arbitragePairsService.getArbitragePairsByURL(this.createUrl()).then((result) => {
+              self.setState({
+                pairs: result.data.results,
+                nextPageURL: result.next
+              });
+            });
+          }, 2500),
         });
-      }, 2500),
+      };
     });
   }
 
@@ -150,16 +172,25 @@ class  ArbitragePairsList  extends  Component {
       this.paramState['sort_by'] = '';
       sort_dir = '↕';
     }
-    arbitragePairsService.getArbitragePairsByURL(this.createUrl()).then((result) => {
-      self.setState({
-        pairs: result.data.results,
-        nextPageURL: result.next
-      });
-      sort_dir_dict[sort_by] = sort_dir;
-      self.setState({
-        tableHeaderState: sort_dir_dict
-      });
-    });
+    authService.isLogged()
+    .then((resp) => {
+      if(!resp) {
+        self.setState({
+          redirectTo: '/login'
+        })
+      } else {
+        arbitragePairsService.getArbitragePairsByURL(this.createUrl()).then((result) => {
+          self.setState({
+            pairs: result.data.results,
+            nextPageURL: result.next
+          });
+          sort_dir_dict[sort_by] = sort_dir;
+          self.setState({
+            tableHeaderState: sort_dir_dict
+          });
+        });
+      }
+    })
   }
 
   createUrl = () => {

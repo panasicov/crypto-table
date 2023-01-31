@@ -25,6 +25,7 @@ class AuthService{
     return apiService.sendPost('/api/accounts/token/refresh/', {refresh})
       .then(response => {
         localStorage.setItem('access', response.data.access);
+        AuthService.setTokenInHeaders();
       })
   }
 
@@ -67,14 +68,20 @@ class AuthService{
     return this.isAccessTokenValid()
     .then(response => {
       if (response) {
+        this.setTokenInHeaders();
         return true
       }
       if (withoutRefresh) {
+        this.deleteTokenFromHeaders()
         return false
       }
-      this.refreshAccessToken();
-      return this.isLogged(withoutRefresh=true);
+      return this.refreshAccessToken().then(() => {
+        return this.isLogged(withoutRefresh=true);
       })
+      .catch(() => {
+        return this.isLogged(withoutRefresh=true);
+      })
+    })
   }
 
   setTokenInHeaders = () => {

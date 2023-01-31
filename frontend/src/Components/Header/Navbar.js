@@ -4,7 +4,8 @@ import AuthService from '../Auth/AuthService';
 
 const authService = new AuthService();
 
-const Navbar = (navClass, linkClassName) => {
+const Navbar = ({navClass, linkClassName}) => {
+
   const [navButtons, setNavButtons] = useState({
     'Arbitrage': '/arbitrage',
   });
@@ -27,7 +28,7 @@ const Navbar = (navClass, linkClassName) => {
     })
   }, [])
 
-  const NavComponent = ({navClass, linkClassName}) => (
+  const NavComponent = () => (
     <nav className={navClass}>
       {Object.entries(navButtons).map( ([key, value]) =>
         <Link to={value} className={linkClassName}>
